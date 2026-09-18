@@ -18,6 +18,10 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+/**
+ * Contexto global para administrar la autenticación de usuarios,
+ * sesión JWT y almacenamiento persistente local en el dispositivo.
+ */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -29,6 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadStoredAuth();
   }, []);
 
+  /**
+   * Carga la sesión guardada en AsyncStorage al abrir la app
+   * y valida si el token JWT sigue vigente consultando al backend.
+   */
   async function loadStoredAuth() {
     try {
       const storedToken = await AsyncStorage.getItem('auth_token');
@@ -38,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
         
-        // Asynchronously check if token is still valid
+        // Verificación asíncrona de vigencia del token
         try {
           const freshUser = await apiFetch('/api/users/me');
           if (freshUser) {
@@ -46,18 +54,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await AsyncStorage.setItem('auth_user', JSON.stringify(freshUser));
           }
         } catch (e) {
-          // Token expired or invalid
-          console.log('Stored token verification failed:', e);
+          // Token expirado o inválido -> cerrar sesión automáticamente
+          console.log('Error de verificación de token almacenado:', e);
           await logout();
         }
       }
     } catch (e) {
-      console.error('Error loading stored auth:', e);
+      console.error('Error al cargar autenticación almacenada:', e);
     } finally {
       setIsLoading(false);
     }
   }
 
+  /**
+   * Inicia sesión con usuario/email y contraseña.
+   */
   async function login(identifier: string, passport: string) {
     setIsLoading(true);
     try {
@@ -81,6 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  /**
+   * Registra un nuevo usuario en la plataforma.
+   */
   async function register(username: string, email: string, passport: string) {
     setIsLoading(true);
     try {
@@ -104,6 +118,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  /**
+   * Cierra la sesión activa y elimina las credenciales del almacenamiento local.
+   */
   async function logout() {
     setToken(null);
     setUser(null);
@@ -128,10 +145,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Hook personalizado para acceder fácilmente al contexto de Autenticación.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
 }

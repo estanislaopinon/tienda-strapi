@@ -1,15 +1,6 @@
 import { factories } from '@strapi/strapi';
 
-/**
- * Controlador de Órdenes / Pedidos para Strapi.
- * Maneja la obtención de pedidos filtrados por el usuario autenticado
- * y la creación de nuevos pedidos con verificación y reducción de stock.
- */
 export default factories.createCoreController('api::order.order', ({ strapi }) => ({
-  /**
-   * Obtiene el historial de pedidos pertenecientes únicamente al usuario autenticado.
-   * @param ctx Contexto de la petición HTTP en Koa/Strapi
-   */
   async find(ctx) {
     const { user } = ctx.state; // Authenticated user from JWT middleware
     if (!user) {
@@ -29,15 +20,6 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
     return this.transformResponse(results, { pagination });
   },
 
-  /**
-   * Crea un nuevo pedido evaluando las siguientes reglas de negocio:
-   * 1. Verifica autenticación del usuario mediante JWT.
-   * 2. Comprueba existencia de stock disponible por cada producto.
-   * 3. Recalcula precios finales en el servidor considerando descuentos.
-   * 4. Descuenta las unidades compradas del stock global.
-   * 5. Genera un ID único alfanumérico para el pedido (ORD-XXXXXX).
-   * @param ctx Contexto de la petición HTTP en Koa/Strapi
-   */
   async create(ctx) {
     const { user } = ctx.state; // Authenticated user from JWT middleware
     if (!user) {

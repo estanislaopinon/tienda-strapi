@@ -1,17 +1,22 @@
 import { Strapi } from '@strapi/strapi';
 
+/**
+ * Script de inicialización (Bootstrap) del backend Strapi.
+ * Se ejecuta automáticamente al arrancar el servidor.
+ */
 export default {
   register() {},
 
   async bootstrap({ strapi }: { strapi: Strapi }) {
-    console.log('Running custom bootstrap...');
+    console.log('Ejecutando configuración inicial (Bootstrap)...');
     
-    // 1. Configure Permissions programmatically
+    // 1. Configurar permisos de la API REST programáticamente para roles Public y Authenticated
     try {
       const publicRole = await strapi.query('plugin::users-permissions.role').findOne({ where: { type: 'public' } });
       const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({ where: { type: 'authenticated' } });
 
       if (publicRole && authenticatedRole) {
+        // Acciones permitidas para usuarios no autenticados (ver catálogo)
         const publicActions = [
           'api::category.category.find',
           'api::category.category.findOne',
@@ -21,6 +26,7 @@ export default {
           'api::product.product.findOne'
         ];
 
+        // Acciones permitidas para usuarios autenticados (ver catálogo y realizar pedidos)
         const authenticatedActions = [
           'api::category.category.find',
           'api::category.category.findOne',
@@ -54,17 +60,17 @@ export default {
             });
           }
         }
-        console.log('✓ Programmatic permissions configured.');
+        console.log('✓ Permisos programáticos configurados con éxito.');
       }
     } catch (err) {
-      console.error('Failed to configure permissions:', err);
+      console.error('Error al configurar permisos iniciales:', err);
     }
 
-    // 2. Seed database
+    // 2. Poblado inicial de datos (Seeding) si la base de datos está vacía
     try {
       const categoryCount = await strapi.entityService.count('api::category.category');
       if (categoryCount === 0) {
-        console.log('Seeding categories...');
+        console.log('Cargando categorías iniciales...');
         const catMap = {
           smartphones: await strapi.entityService.create('api::category.category', {
             data: { name: 'Smartphones', slug: 'smartphones', description: 'Los últimos smartphones del mercado' }
@@ -77,7 +83,7 @@ export default {
           })
         };
 
-        console.log('Seeding brands...');
+        console.log('Cargando marcas iniciales...');
         const brandMap = {
           apple: await strapi.entityService.create('api::brand.brand', {
             data: { name: 'Apple', slug: 'apple', description: 'Diseñado por Apple en California' }
@@ -90,7 +96,7 @@ export default {
           })
         };
 
-        console.log('Seeding products...');
+        console.log('Cargando productos iniciales...');
         const productsToSeed = [
           {
             name: 'iPhone 15 Pro Max',
@@ -163,12 +169,12 @@ export default {
         for (const p of productsToSeed) {
           await strapi.entityService.create('api::product.product', { data: p });
         }
-        console.log('✓ Seeding complete.');
+        console.log('✓ Carga de datos inicial completada.');
       } else {
-        console.log('Database already has items. Skipping seed.');
+        console.log('La base de datos ya contiene registros. Se omite el seeding.');
       }
     } catch (err) {
-      console.error('Failed to seed database:', err);
+      console.error('Error al realizar el seeding de datos:', err);
     }
   },
 };

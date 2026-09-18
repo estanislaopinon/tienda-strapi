@@ -2,12 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-/**
- * Determina dinámicamente la URL base de la API backend de Strapi:
- * - Si existe la variable de entorno `EXPO_PUBLIC_API_URL`, usa su valor.
- * - Si es navegador Web, utiliza `http://localhost:1337`.
- * - Si es dispositivo móvil nativo (Expo Go en iOS/Android), extrae la IP local del bundler Metro.
- */
 const getBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
@@ -36,19 +30,13 @@ interface FetchOptions extends RequestInit {
   data?: any;
 }
 
-/**
- * Cliente HTTP unificado para interactuar con la API REST de Strapi.
- * Inyecta automáticamente el token JWT guardado en AsyncStorage si existe.
- * @param path Ruta del endpoint (ej. '/api/products') o URL completa.
- * @param options Opciones de RequestInit y body de datos serializado como JSON.
- */
 export async function apiFetch(path: string, options: FetchOptions = {}) {
   const token = await AsyncStorage.getItem('auth_token');
-  
+
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');
   headers.set('Accept', 'application/json');
-  
+
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
