@@ -1,6 +1,14 @@
 import { factories } from '@strapi/strapi';
 
+/**
+ * Controlador de Productos para Strapi.
+ * Implementa el patrón Soft Delete (borrado lógico mediante la propiedad `isDeleted`)
+ * en lugar del borrado físico en base de datos.
+ */
 export default factories.createCoreController('api::product.product', ({ strapi }) => ({
+  /**
+   * Obtiene la lista de productos filtrando automáticamente aquellos con `isDeleted: true`.
+   */
   async find(ctx) {
     // Append filter to exclude soft deleted items
     ctx.query = {
@@ -13,6 +21,9 @@ export default factories.createCoreController('api::product.product', ({ strapi 
     return await super.find(ctx);
   },
 
+  /**
+   * Obtiene un producto por su ID. Retorna 404 si el producto fue marcado como eliminado (`isDeleted`).
+   */
   async findOne(ctx) {
     const { id } = ctx.params;
 
@@ -28,6 +39,9 @@ export default factories.createCoreController('api::product.product', ({ strapi 
     return await super.findOne(ctx);
   },
 
+  /**
+   * Ejecuta el borrado lógico (Soft Delete) marcando la propiedad `isDeleted: true`.
+   */
   async delete(ctx) {
     const { id } = ctx.params;
 
