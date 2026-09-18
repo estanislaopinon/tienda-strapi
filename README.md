@@ -4,7 +4,7 @@
 
 ---
 
-## 💡 ¿Qué hace la aplicación?
+## ¿Qué hace la aplicación?
 
 - **Catálogo de Productos**: Muestra productos con precios, descuentos, marcas y especificaciones técnicas.
 - **Filtros y Búsqueda**: Permite buscar productos por texto y filtrarlos por categoría o marca en tiempo real.
@@ -16,7 +16,7 @@
 
 ---
 
-## 📦 Requisitos Previos
+## Requisitos Previos
 
 Antes de comenzar, asegúrate de tener instalado:
 - **Node.js** (versión 18 o superior)
@@ -25,7 +25,7 @@ Antes de comenzar, asegúrate de tener instalado:
 
 ---
 
-## 🛠️ Pasos de Instalación
+## Pasos de Instalación
 
 1. **Clonar o descargar el repositorio**:
    ```bash
